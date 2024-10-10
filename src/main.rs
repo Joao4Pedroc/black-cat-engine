@@ -1,3 +1,6 @@
+mod board;
+
 fn main() {
-    println!("Hello, world!");
+    let board = board::initialize_board();
+    board::print_board(&board);
 }
