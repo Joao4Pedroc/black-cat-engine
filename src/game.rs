@@ -1,6 +1,3 @@
-mod board;
-mod move_generation;
-
 use crate::board::{Board, initialize_board, print_board, Color};
 use crate::move_generation::{generate_legal_moves, make_move, is_in_check, Move};
 use rand::seq::SliceRandom;
