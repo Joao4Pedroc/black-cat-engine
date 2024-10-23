@@ -1,3 +1,4 @@
+use crate::gamestate::GameState;
 use crate::board::{Board, Piece, PieceType, Color};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -301,15 +302,19 @@ pub fn generate_all_pseudo_moves(board: &Board, color: Color) -> Vec<Move> {
     }
     moves
 }
-pub fn generate_legal_moves(board: &Board, color: Color) -> Vec<Move> {
+
+pub fn generate_legal_moves(game_state: &GameState) -> Vec<Move> {
+    let color = game_state.current_turn;
+    let board = &game_state.board;
     let pseudo_moves = generate_all_pseudo_moves(board, color);
     let mut legal_moves = Vec::new();
 
     for mv in pseudo_moves {
-        let mut new_board = *board; // Copy the board for simulation
-        make_move(&mut new_board, &mv);
+        let mut new_game_state = game_state.clone(); // Clone the GameState for simulation
+        make_move(&mut new_game_state, &mv);
 
-        if !is_in_check(&new_board, color) {
+        // Check if the move leaves the player in check
+        if !is_in_check(&new_game_state.board, color) {
             legal_moves.push(mv);
         }
     }
@@ -318,12 +323,28 @@ pub fn generate_legal_moves(board: &Board, color: Color) -> Vec<Move> {
 }
 
 
-pub fn make_move(board: &mut Board, mv: &Move) {
+pub fn make_move(game_state: &mut GameState, mv: &Move) {
+    let board = &mut game_state.board;
+
     // Get the piece from the source square
     if let Some(mut piece) = board[mv.from] {
+        // Determine if the halfmove clock should be reset
+        let mut reset_halfmove_clock = false;
+
+        // Check if a pawn has moved
+        if piece.piece_type == PieceType::Pawn {
+            reset_halfmove_clock = true;
+        }
+
+        // Check if a capture has been made
+        if board[mv.to].is_some() {
+            reset_halfmove_clock = true;
+        }
+
         // Handle pawn promotion
         if let Some(promotion_piece_type) = mv.promotion {
             piece.piece_type = promotion_piece_type;
+            reset_halfmove_clock = true; // Promotion resets halfmove clock
         }
 
         // Move the piece to the destination square
@@ -331,6 +352,13 @@ pub fn make_move(board: &mut Board, mv: &Move) {
 
         // Clear the source square
         board[mv.from] = None;
+
+        // Reset or increment the halfmove clock
+        if reset_halfmove_clock {
+            game_state.halfmove_clock = 0;
+        } else {
+            game_state.halfmove_clock += 1;
+        }
 
         // TODO: Handle special moves like castling and en passant
     } else {

@@ -1,3 +1,5 @@
+// Remove any definition of GameState from here
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PieceType {
     Pawn,
@@ -22,40 +24,64 @@ pub struct Piece {
 
 pub type Board = [Option<Piece>; 64];
 
+// Initialization and print functions
 pub fn initialize_board() -> Board {
     let mut board: Board = [None; 64];
 
     // Place white pieces
-    board[0] = Some(Piece { piece_type: PieceType::Rook, color: Color::White });
-    board[1] = Some(Piece { piece_type: PieceType::Knight, color: Color::White });
-    board[2] = Some(Piece { piece_type: PieceType::Bishop, color: Color::White });
-    board[3] = Some(Piece { piece_type: PieceType::Queen, color: Color::White });
-    board[4] = Some(Piece { piece_type: PieceType::King, color: Color::White });
-    board[5] = Some(Piece { piece_type: PieceType::Bishop, color: Color::White });
-    board[6] = Some(Piece { piece_type: PieceType::Knight, color: Color::White });
-    board[7] = Some(Piece { piece_type: PieceType::Rook, color: Color::White });
+    let white_back_rank = [
+        PieceType::Rook,
+        PieceType::Knight,
+        PieceType::Bishop,
+        PieceType::Queen,
+        PieceType::King,
+        PieceType::Bishop,
+        PieceType::Knight,
+        PieceType::Rook,
+    ];
+    for (i, &piece_type) in white_back_rank.iter().enumerate() {
+        board[i] = Some(Piece {
+            piece_type,
+            color: Color::White,
+        });
+    }
 
+    // Place white pawns
     for i in 8..16 {
-        board[i] = Some(Piece { piece_type: PieceType::Pawn, color: Color::White });
+        board[i] = Some(Piece {
+            piece_type: PieceType::Pawn,
+            color: Color::White,
+        });
+    }
+
+    // Place black pawns
+    for i in 48..56 {
+        board[i] = Some(Piece {
+            piece_type: PieceType::Pawn,
+            color: Color::Black,
+        });
     }
 
     // Place black pieces
-    board[56] = Some(Piece { piece_type: PieceType::Rook, color: Color::Black });
-    board[57] = Some(Piece { piece_type: PieceType::Knight, color: Color::Black });
-    board[58] = Some(Piece { piece_type: PieceType::Bishop, color: Color::Black });
-    board[59] = Some(Piece { piece_type: PieceType::Queen, color: Color::Black });
-    board[60] = Some(Piece { piece_type: PieceType::King, color: Color::Black });
-    board[61] = Some(Piece { piece_type: PieceType::Bishop, color: Color::Black });
-    board[62] = Some(Piece { piece_type: PieceType::Knight, color: Color::Black });
-    board[63] = Some(Piece { piece_type: PieceType::Rook, color: Color::Black });
-
-    for i in 48..56 {
-        board[i] = Some(Piece { piece_type: PieceType::Pawn, color: Color::Black });
+    let black_back_rank = [
+        PieceType::Rook,
+        PieceType::Knight,
+        PieceType::Bishop,
+        PieceType::Queen,
+        PieceType::King,
+        PieceType::Bishop,
+        PieceType::Knight,
+        PieceType::Rook,
+    ];
+    for (i, &piece_type) in black_back_rank.iter().enumerate() {
+        board[56 + i] = Some(Piece {
+            piece_type,
+            color: Color::Black,
+        });
     }
 
     board
 }
-
 
 pub fn print_board(board: &Board) {
     for rank in (0..8).rev() {
@@ -75,7 +101,7 @@ pub fn print_board(board: &Board) {
                         Color::White => piece_char,
                         Color::Black => piece_char.to_ascii_lowercase(),
                     }
-                },
+                }
                 None => '.',
             };
             print!("{} ", symbol);
@@ -83,4 +109,3 @@ pub fn print_board(board: &Board) {
         println!();
     }
 }
-
